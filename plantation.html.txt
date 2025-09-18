@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Plantation Data Entry</title>
+  <style>
+    body{font-family:Inter,system-ui,Arial;margin:0;background:#f7fbf9;color:#0b1a16}
+    .container{max-width:900px;margin:32px auto;padding:24px;background:#fff;border-radius:12px;box-shadow:0 8px 30px rgba(6,22,13,0.08)}
+    h1{margin:0 0 12px;font-size:1.6rem}
+    form{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    label{display:block;font-size:.9rem}
+    input,select,textarea{width:100%;padding:8px;border:1px solid #d9e6df;border-radius:8px;font-size:0.95rem}
+    textarea{min-height:100px;resize:vertical}
+    .full{grid-column:1/-1}
+    .actions{display:flex;gap:8px;align-items:center}
+    button{padding:10px 14px;border-radius:10px;border:0;background:#0f8a5f;color:white;cursor:pointer}
+    button.secondary{background:#e6f1ec;color:#06543b}
+    .notice{margin-top:12px;font-size:.9rem;color:#27523a}
+    table{width:100%;border-collapse:collapse;margin-top:16px}
+    th,td{border:1px solid #e5efe9;padding:8px;text-align:left}
+    @media (max-width:720px){form{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Plantation Data Entry</h1>
+    <p class="notice">Enter plantation records below. By default entries are stored in your browser (local CSV export available). To save to a spreadsheet or server, set up a Google Apps Script endpoint and paste its URL into <code>GAS_ENDPOINT</code> in the script (see commented instructions inside this file).</p>
+
+    <form id="entryForm">
+      <label>Site / Plantation Name<input name="site" required></label>
+      <label>Location (GPS / Address)<input name="location"></label>
+      <label>Species<input name="species"></label>
+      <label>Number of trees<input name="count" type="number" min="0"></label>
+      <label>Planted date<input name="planted_date" type="date"></label>
+      <label>Health status
+        <select name="health">
+          <option value="Good">Good</option>
+          <option value="Fair">Fair</option>
+          <option value="Poor">Poor</option>
+          <option value="Dead">Dead</option>
+        </select>
+      </label>
+      <label class="full">Notes / Observations<textarea name="notes"></textarea></label>
+
+      <div class="full actions">
+        <button type="submit">Save record</button>
+        <button type="button" id="saveLocal" class="secondary">Save to browser</button>
+        <button type="button" id="exportCsv" class="secondary">Export CSV</button>
+        <button type="button" id="clearAll" class="secondary">Clear stored</button>
+      </div>
+    </form>
+
+    <div id="messages"></div>
+
+    <table id="recordsTable" style="display:none">
+      <thead><tr><th>Site</th><th>Location</th><th>Species</th><th>Count</th><th>Planted</th><th>Health</th><th>Notes</th></tr></thead>
+      <tbody></tbody>
+    </table>
+
+    <p style="margin-top:16px;font-size:.85rem;color:#314f40">Host this single HTML file on GitHub Pages or Netlify for a free HTTPS site. See top-of-file comments for an optional Google Apps Script to save to Google Sheets.</p>
+  </div>
+
+<script>
+/*
+  OPTIONAL: Google Apps Script receiver (paste into script.google.com -> New project)
+  -------------------------------------------------
+  function doPost(e){
+    var ss = SpreadsheetApp.openById('YOUR_SHEET_ID'); // put your sheet id
+    var sheet = ss.getSheetByName('Sheet1') || ss.getSheets()[0];
+    var data = JSON.parse(e.postData.contents);
+    sheet.appendRow([new Date(), data.site||'', data.location||'', data.species||'', data.count||'', data.planted_date||'', data.health||'', data.notes||'']);
+    return ContentService.createTextOutput(JSON.stringify({status:'ok'})).setMimeType(ContentService.MimeType.JSON);
+  }
+  Deploy -> New deployment -> Web app; Execute as: Me; Who has access: Anyone -> Deploy and copy the web app URL.
+
+  In the HTML below set GAS_ENDPOINT to that web app URL.
+*/
+
+const GAS_ENDPOINT = '';// <-- paste your Google Apps Script web app URL here (optional)
+
+const form = document.getElementById('entryForm');
+const messages = document.getElementById('messages');
+const table = document.getElementById('recordsTable');
+const tbody = table.querySelector('tbody');
+const STORAGE_KEY = 'plantation_records_v1';
+
+function showMessage(msg,ok=true){ messages.innerText = msg; messages.style.color = ok? '#0b6623':'#8b1a1a'; }
+
+function readStored(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }catch(e){ return []; } }
+function writeStored(arr){ localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); }
+
+function addRowToTable(r){ table.style.display='table'; const tr = document.createElement('tr'); ['site','location','species','count','planted_date','health','notes'].forEach(k=>{ const td=document.createElement('td'); td.textContent = r[k] || ''; tr.appendChild(td); }); tbody.appendChild(tr); }
+
+function refreshTable(){ tbody.innerHTML=''; const arr = readStored(); if(arr.length===0){ table.style.display='none'; return } arr.forEach(addRowToTable); }
+
+form.addEventListener('submit', async (ev)=>{
+  ev.preventDefault();
+  const fd = new FormData(form);
+  const obj = Object.fromEntries(fd.entries());
+
+  // Save locally first
+  const arr = readStored(); arr.push(obj); writeStored(arr); refreshTable(); showMessage('Saved locally.');
+
+  // If GAS endpoint is set, POST JSON
+  if(GAS_ENDPOINT){
+    try{
+      const res = await fetch(GAS_ENDPOINT, {method:'POST',headers: {'Content-Type':'application/json'}, body: JSON.stringify(obj)});
+      if(!res.ok) throw new Error('Network response not ok')
+      const data = await res.json();
+      showMessage('Saved to server: ' + (data.status||res.status));
+    }catch(err){ showMessage('Server save failed: ' + err.message, false); }
+  }
+
+  form.reset();
+});
+
+document.getElementById('saveLocal').addEventListener('click', ()=>{ const fd=new FormData(form); const obj=Object.fromEntries(fd.entries()); if(!obj.site){ showMessage('Please fill Site name before saving.', false); return } const arr=readStored(); arr.push(obj); writeStored(arr); refreshTable(); showMessage('Saved to browser.'); form.reset(); });
+
+document.getElementById('exportCsv').addEventListener('click', ()=>{
+  const arr = readStored(); if(!arr.length){ showMessage('No records to export.', false); return }
+  const keys = ['site','location','species','count','planted_date','health','notes'];
+  const rows = [keys.join(',')].concat(arr.map(r=>keys.map(k=> '"'+((r[k]||'').toString().replace(/"/g,'""'))+'"').join(',')));
+  const csv = rows.join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='plantation_records.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  showMessage('CSV exported.');
+});
+
+document.getElementById('clearAll').addEventListener('click', ()=>{ if(!confirm('Clear all locally stored records?')) return; localStorage.removeItem(STORAGE_KEY); refreshTable(); showMessage('Local records cleared.'); });
+
+// init
+refreshTable();
+</script>
+</body>
+</html>
