@@ -101,59 +101,131 @@
     </form>
   </section>
 
-  <!-- ✅ Records Table -->
-  <section id="records-section">
-    <h2>Plantation Records</h2>
-    <table id="plantation-records-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Year</th>
-          <th>Range</th>
-          <th>Scheme</th>
-          <th>Model</th>
-          <th>Area (Ha)</th>
-          <th>Plants</th>
-          <th>GPS</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </section>
+  <!-- ✅ Records Table with Filter -->
+<section id="records-section">
+  <h2>Plantation Records</h2>
+
+  <!-- 🔎 Search & Filter -->
+  <div style="margin-bottom:15px; padding:10px; background:#eef; border-radius:8px;">
+    <label>Search (any field):</label>
+    <input type="text" id="searchInput" placeholder="Type to search..." onkeyup="renderRecords()">
+
+    <label>Year:</label>
+    <select id="filterYear" onchange="renderRecords()">
+      <option value="">All</option>
+      <script>
+        let fy = new Date().getFullYear();
+        for (let i = fy; i >= 2000; i--) {
+          document.write(`<option value="${i}">${i}</option>`);
+        }
+      </script>
+    </select>
+
+    <label>Range:</label>
+    <select id="filterRange" onchange="renderRecords()">
+      <option value="">All</option>
+      <option value="Lunawada">Lunawada</option>
+      <option value="Khanpur">Khanpur</option>
+      <option value="Balasinor">Balasinor</option>
+      <option value="Santrampur (East)">Santrampur (East)</option>
+      <option value="Santrampur (West)">Santrampur (West)</option>
+      <option value="Munpur">Munpur</option>
+      <option value="Ditwas">Ditwas</option>
+    </select>
+
+    <label>Scheme:</label>
+    <select id="filterScheme" onchange="renderRecords()">
+      <option value="">All</option>
+      <option value="Forest Mgmt & Dev (NT)">Forest Mgmt & Dev (NT)</option>
+      <option value="Forest Mgmt & Dev (T)">Forest Mgmt & Dev (T)</option>
+      <option value="CAMPA">CAMPA</option>
+      <option value="PERG">PERG</option>
+    </select>
+
+    <label>Model:</label>
+    <select id="filterModel" onchange="renderRecords()">
+      <option value="">All</option>
+      <option value="Afforestation in Degraded Forest area">Afforestation in Degraded Forest area</option>
+      <option value="Aided Aartificial Regenration of Forest Land">Aided Artificial Regenration of Forest Land</option>
+      <option value="Eco-Restoration in Barren Area">Eco-Restoration in Barren Area</option>
+      <option value="Bamboo Plantation">Bamboo Plantation</option>
+      <option value="Irrigation Plantation">Irrigation Plantation</option>
+      <option value="Commercial Plantation in Timber Species">Commercial Plantation in Timber Species</option>
+      <option value="Protection and Devlopment and Sacred Grooves in Forest">Protection and Devlopment and Sacred Grooves in Forest</option>
+      <option value="Eco-Restoration under GATI-SHAKTI">Eco-Restoration under GATI-SHAKTI</option>
+      <option value="Plantation of Enddangered Species">Plantation of Enddangered Species</option>
+      <option value="Drone Plantation">Drone Plantation</option>
+    </select>
+  </div>
+
+  <!-- Table -->
+  <table id="plantation-records-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Year</th>
+        <th>Range</th>
+        <th>Scheme</th>
+        <th>Model</th>
+        <th>Area (Ha)</th>
+        <th>Plants</th>
+        <th>GPS</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</section>
 
   <!-- ✅ JavaScript -->
   <script>
     let plantationRecords = JSON.parse(localStorage.getItem("plantationRecords")) || [];
 
-    function renderRecords() {
-      const tbody = document.querySelector("#plantation-records-table tbody");
-      tbody.innerHTML = "";
+ function renderRecords() {
+  const tbody = document.querySelector("#plantation-records-table tbody");
+  tbody.innerHTML = "";
 
-      if (plantationRecords.length === 0) {
-        tbody.innerHTML = "<tr><td colspan='9'>No records found</td></tr>";
-        return;
-      }
+  // ✅ Filters
+  const search = document.getElementById("searchInput")?.value.toLowerCase() || "";
+  const filterYear = document.getElementById("filterYear")?.value;
+  const filterRange = document.getElementById("filterRange")?.value;
+  const filterScheme = document.getElementById("filterScheme")?.value;
+  const filterModel = document.getElementById("filterModel")?.value;
 
-      plantationRecords.forEach((rec, index) => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${index + 1}</td>
-          <td>${rec.year}</td>
-          <td>${rec.range}</td>
-          <td>${rec.scheme}</td>
-          <td>${rec.model}</td>
-          <td>${rec.area}</td>
-          <td>${rec.plants}</td>
-          <td>${rec.gps}</td>
-          <td>
-            <button class="btn btn-edit" onclick="editRecord(${index})">✏️ Edit</button>
-            <button class="btn btn-delete" onclick="deleteRecord(${index})">🗑️ Delete</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
+  let filtered = plantationRecords.filter(rec => {
+    return (
+      (filterYear === "" || rec.year === filterYear) &&
+      (filterRange === "" || rec.range === filterRange) &&
+      (filterScheme === "" || rec.scheme === filterScheme) &&
+      (filterModel === "" || rec.model === filterModel) &&
+      (search === "" || JSON.stringify(rec).toLowerCase().includes(search))
+    );
+  });
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = "<tr><td colspan='9'>No matching records found</td></tr>";
+    return;
+  }
+
+  filtered.forEach((rec, index) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${index + 1}</td>
+      <td>${rec.year}</td>
+      <td>${rec.range}</td>
+      <td>${rec.scheme}</td>
+      <td>${rec.model}</td>
+      <td>${rec.area}</td>
+      <td>${rec.plants}</td>
+      <td>${rec.gps}</td>
+      <td>
+        <button class="btn btn-edit" onclick="editRecord(${plantationRecords.indexOf(rec)})">✏️ Edit</button>
+        <button class="btn btn-delete" onclick="deleteRecord(${plantationRecords.indexOf(rec)})">🗑️ Delete</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
 
     document.getElementById("plantation-form").addEventListener("submit", function(e) {
       e.preventDefault();
@@ -207,3 +279,4 @@
   </script>
 </body>
 </html>
+
