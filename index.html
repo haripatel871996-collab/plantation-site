@@ -5,13 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Plantation Records</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-    }
-    h1, h2 {
-      color: #2c6e49;
-    }
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h1, h2 { color: #2c6e49; }
     form {
       background: #f9f9f9;
       padding: 15px;
@@ -20,104 +15,106 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
     form input, form select, form button {
-      width: 100%;
-      padding: 8px;
-      margin-top: 5px;
+      width: 100%; padding: 8px; margin-top: 5px;
     }
     form button {
-      background: #4CAF50;
-      color: white;
-      font-weight: bold;
-      border: none;
-      cursor: pointer;
+      background: #4CAF50; color: white; font-weight: bold;
+      border: none; cursor: pointer;
     }
-    form button:hover {
-      background: #45a049;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    table, th, td {
-      border: 1px solid #ccc;
-    }
-    th {
-      background: #4CAF50;
-      color: white;
-    }
-    th, td {
-      padding: 10px;
-      text-align: left;
-    }
-    tr:nth-child(even) {
-      background: #f2f2f2;
-    }
-    .btn {
-      padding: 5px 10px;
-      margin: 2px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .btn-edit {
-      background: #2196F3;
-      color: white;
-    }
-    .btn-delete {
-      background: #f44336;
-      color: white;
-    }
+    form button:hover { background: #45a049; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    table, th, td { border: 1px solid #ccc; }
+    th { background: #4CAF50; color: white; }
+    th, td { padding: 10px; text-align: left; }
+    tr:nth-child(even) { background: #f2f2f2; }
+    .btn { padding: 5px 10px; margin: 2px; border: none; border-radius: 5px; cursor: pointer; }
+    .btn-edit { background: #2196F3; color: white; }
+    .btn-delete { background: #f44336; color: white; }
   </style>
 </head>
 <body>
-  <h1>🌱 Plantation Site</h1>
+  <h1>🌱 Plantation Entry System</h1>
 
-  <!-- ✅ Add/Edit Form -->
+  <!-- ✅ Form -->
   <section id="add-record">
     <h2 id="form-title">Add New Plantation Record</h2>
     <form id="plantation-form">
       <input type="hidden" id="editIndex" value="">
-      
-      <label>Range:</label><br>
-      <select id="range" required>
-        <option value="lunawada">Lunawada</option>
-        <option value="khanpur">Khanpur</option>
-        <option value="balasinor">Balasinor</option>
-        <option value="santrampur (east)">Santrampur (East)</option>
-        <option value="Santrampur (west)">Santrampur (West)</option>
-        <option value="munpur">Munpur</option>
-        <option value="ditwas">Ditwas</option>
 
-      <label>Category:</label><br>
-      <select id="category" required>
-        <option value="Fruit">Fruit</option>
-        <option value="Flower">Flower</option>
-        <option value="Tree">Tree</option>
-        <option value="Other">Other</option>
+      <label>Year:</label>
+      <select id="year" required>
+        <option value="">-- Select Year --</option>
+        <script>
+          let y = new Date().getFullYear();
+          for (let i = y; i >= 2000; i--) {
+            document.write(`<option value="${i}">${i}</option>`);
+          }
+        </script>
       </select><br><br>
 
-      <label>Planted Date:</label><br>
-      <input type="date" id="plantedDate" required><br><br>
+      <label>Range:</label>
+      <select id="range" required>
+        <option value="">-- Select Range --</option>
+        <option value="Lunawada">Lunawada</option>
+        <option value="Khanpur">Khanpur</option>
+        <option value="Balasinor">Balasinor</option>
+        <option value="Santrampur (East)">Santrampur (East)</option>
+        <option value="Santrampur (West)">Santrampur (West)</option>
+        <option value="Munpur">Munpur</option>
+        <option value="Ditwas">Ditwas</option>
+      </select><br><br>
 
-      <label>Location:</label><br>
-      <input type="text" id="location" required><br><br>
+      <label>Scheme:</label>
+      <select id="scheme" required>
+        <option value="">-- Select Scheme --</option>
+        <option value="Forest Mgmt & Dev (NT)">Forest Mgmt & Dev (NT)</option>
+        <option value="Forest Mgmt & Dev (T)">Forest Mgmt & Dev (T)</option>
+        <option value="CAMPA">CAMPA</option>
+        <option value="PERG">PERG</option>
+      </select><br><br>
+
+      <label>Model:</label>
+      <select id="model" required>
+        <option value="">-- Select Model --</option>
+        <option value="Afforestation in Degraded Forest area">Afforestation in Degraded Forest area</option>
+        <option value="Aided Aartificial Regenration of Forest Land">Aided Artificial Regenration of Forest Land</option>
+        <option value="Eco-Restoration in Barren Area">Eco-Restoration in Barren Area</option>
+        <option value="Bamboo Plantation">Bamboo Plantation</option>
+        <option value="Irrigation Plantation">Irrigation Plantation</option>
+        <option value="Commercial Plantation in Timber Species">Commercial Plantation in Timber Species</option>
+        <option value="Protection and Devlopment and Sacred Grooves in Forest">Protection and Devlopment and Sacred Grooves in Forest</option>
+        <option value="Eco-Restoration under GATI-SHAKTI">Eco-Restoration under GATI-SHAKTI</option>
+        <option value="Plantation of Enddangered Species">Plantation of Enddangered Species</option>
+        <option value="Drone Plantation">Drone Plantation</option>
+      </select><br><br>
+
+      <label>Plantation Area (Ha):</label>
+      <input type="number" id="area" required><br><br>
+
+      <label>Plants Planted:</label>
+      <input type="number" id="plants" required><br><br>
+
+      <label>GPS Coordinates:</label>
+      <input type="text" id="gps" placeholder="e.g. 23.4567, 73.1234" required><br><br>
 
       <button type="submit">💾 Save Record</button>
     </form>
   </section>
 
-  <!-- ✅ Plantation Records Table -->
+  <!-- ✅ Records Table -->
   <section id="records-section">
     <h2>Plantation Records</h2>
     <table id="plantation-records-table">
       <thead>
         <tr>
           <th>ID</th>
-          <th>Plant Name</th>
-          <th>Category</th>
-          <th>Planted Date</th>
-          <th>Location</th>
+          <th>Year</th>
+          <th>Range</th>
+          <th>Scheme</th>
+          <th>Model</th>
+          <th>Area (Ha)</th>
+          <th>Plants</th>
+          <th>GPS</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -134,7 +131,7 @@
       tbody.innerHTML = "";
 
       if (plantationRecords.length === 0) {
-        tbody.innerHTML = "<tr><td colspan='6'>No records found</td></tr>";
+        tbody.innerHTML = "<tr><td colspan='9'>No records found</td></tr>";
         return;
       }
 
@@ -142,10 +139,13 @@
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${index + 1}</td>
-          <td>${rec.plant_name}</td>
-          <td>${rec.category}</td>
-          <td>${rec.planted_date}</td>
-          <td>${rec.location}</td>
+          <td>${rec.year}</td>
+          <td>${rec.range}</td>
+          <td>${rec.scheme}</td>
+          <td>${rec.model}</td>
+          <td>${rec.area}</td>
+          <td>${rec.plants}</td>
+          <td>${rec.gps}</td>
           <td>
             <button class="btn btn-edit" onclick="editRecord(${index})">✏️ Edit</button>
             <button class="btn btn-delete" onclick="deleteRecord(${index})">🗑️ Delete</button>
@@ -160,17 +160,18 @@
       const editIndex = document.getElementById("editIndex").value;
 
       const record = {
-        plant_name: document.getElementById("plantName").value,
-        category: document.getElementById("category").value,
-        planted_date: document.getElementById("plantedDate").value,
-        location: document.getElementById("location").value
+        year: document.getElementById("year").value,
+        range: document.getElementById("range").value,
+        scheme: document.getElementById("scheme").value,
+        model: document.getElementById("model").value,
+        area: document.getElementById("area").value,
+        plants: document.getElementById("plants").value,
+        gps: document.getElementById("gps").value
       };
 
       if (editIndex === "") {
-        // Add new record
         plantationRecords.push(record);
       } else {
-        // Update existing record
         plantationRecords[editIndex] = record;
         document.getElementById("editIndex").value = "";
         document.getElementById("form-title").innerText = "Add New Plantation Record";
@@ -183,10 +184,13 @@
 
     function editRecord(index) {
       const rec = plantationRecords[index];
-      document.getElementById("plantName").value = rec.plant_name;
-      document.getElementById("category").value = rec.category;
-      document.getElementById("plantedDate").value = rec.planted_date;
-      document.getElementById("location").value = rec.location;
+      document.getElementById("year").value = rec.year;
+      document.getElementById("range").value = rec.range;
+      document.getElementById("scheme").value = rec.scheme;
+      document.getElementById("model").value = rec.model;
+      document.getElementById("area").value = rec.area;
+      document.getElementById("plants").value = rec.plants;
+      document.getElementById("gps").value = rec.gps;
       document.getElementById("editIndex").value = index;
       document.getElementById("form-title").innerText = "✏️ Edit Plantation Record";
     }
@@ -203,4 +207,3 @@
   </script>
 </body>
 </html>
-
