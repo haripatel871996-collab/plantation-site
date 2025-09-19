@@ -35,11 +35,25 @@
 <body>
   <body>
   <script>
-    // Redirect to login.html if not logged in
     if (localStorage.getItem("loggedIn") !== "true") {
       window.location.href = "login.html";
     }
   </script>
+  <body><!-- Logout button (top-right) -->
+<button id="logoutBtn" onclick="logout()" style="
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  padding: 8px 14px;
+  background: #dc3545;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+">Logout</button>
+  <script>
+    </script>
   <h1>🌱 Plantation Entry System</h1>
 
   <!-- ✅ Form -->
@@ -284,6 +298,49 @@
 
     document.addEventListener("DOMContentLoaded", renderRecords);
   </script>
+    <script>
+  // Clears common session keys and redirects to login page
+  function clearSessionAndRedirect() {
+    // Remove the keys your site uses for login/session
+    localStorage.removeItem("loggedIn");
+    localStorage.removeItem("token");      // if you store JWT here
+    localStorage.removeItem("username");   // optional
+    // If you store other keys related to the app, remove them too:
+    // localStorage.removeItem("plantationRecords");
+
+    // Or if you really want to wipe everything for the site:
+    // localStorage.clear(); // CAREFUL: removes all data for this origin
+
+    // Redirect back to login
+    window.location.href = "login.html";
+  }
+
+  // Basic logout: confirm then clear and redirect
+  function logout() {
+    if (!confirm("Are you sure you want to logout?")) return;
+    clearSessionAndRedirect();
+  }
+
+  /* --- Optional: If you have a backend logout endpoint (invalidate token),
+     uncomment and use this instead of immediate redirect.
+  async function logout() {
+    if (!confirm("Are you sure you want to logout?")) return;
+    try {
+      const token = localStorage.getItem("token");
+      if (token) {
+        await fetch("https://your-backend.example.com/api/auth/logout", {
+          method: "POST",
+          headers: { "Authorization": "Bearer " + token }
+        });
+      }
+    } catch (e) {
+      console.warn("Server logout failed:", e);
+    }
+    clearSessionAndRedirect();
+  }
+  */
+</script>
 </body>
 </html>
+
 
