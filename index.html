@@ -1,44 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Plantation Site — Records</title>
-
-  <!-- Simple table styles -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plantation Records</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #fafafa; }
-    h1 { color: #2e7d32; margin-bottom: 8px; }
-    .card { background: #fff; padding: 16px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-    th, td { padding: 10px 8px; border: 1px solid #e0e0e0; text-align: center; }
-    th { background: #4CAF50; color: white; font-weight: 600; }
-    tr:nth-child(even){ background: #f7f7f7; }
-    caption { text-align:left; padding: 8px 0; font-weight:600; }
-    /* responsive small screens */
-    @media (max-width:600px){
-      table, thead, tbody, th, td, tr { display: block; }
-      th { display: none; } /* hide header on very small screens for simple card rows */
-      td { text-align: right; padding-left: 50%; position: relative; }
-      td::before { 
-        content: attr(data-label);
-        position: absolute;
-        left: 10px;
-        width: 45%;
-        text-align: left;
-        font-weight: 600;
-      }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    h1, h2 {
+      color: #2c6e49;
+    }
+    form {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    form input, form select, form button {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+    }
+    form button {
+      background: #4CAF50;
+      color: white;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+    }
+    form button:hover {
+      background: #45a049;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+    th {
+      background: #4CAF50;
+      color: white;
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+    }
+    tr:nth-child(even) {
+      background: #f2f2f2;
     }
   </style>
 </head>
 <body>
-  <h1>🌱 Plantation Records</h1>
+  <h1>🌱 Plantation Site</h1>
 
-  <div class="card" id="records-card">
-    <caption>All plantation entries (placeholder)</caption>
+  <!-- ✅ Add Record Form -->
+  <section id="add-record">
+    <h2>Add New Plantation Record</h2>
+    <form id="plantation-form">
+      <label>Plant Name:</label><br>
+      <input type="text" id="plantName" required><br><br>
 
-    <!-- Placeholder table -->
-    <table id="plantation-records-table" aria-describedby="records-card">
+      <label>Category:</label><br>
+      <select id="category" required>
+        <option value="Fruit">Fruit</option>
+        <option value="Flower">Flower</option>
+        <option value="Tree">Tree</option>
+        <option value="Other">Other</option>
+      </select><br><br>
+
+      <label>Planted Date:</label><br>
+      <input type="date" id="plantedDate" required><br><br>
+
+      <label>Location:</label><br>
+      <input type="text" id="location" required><br><br>
+
+      <button type="submit">➕ Add Record</button>
+    </form>
+  </section>
+
+  <!-- ✅ Plantation Records Table -->
+  <section id="records-section">
+    <h2>Plantation Records</h2>
+    <table id="plantation-records-table">
       <thead>
         <tr>
           <th>ID</th>
@@ -48,49 +96,65 @@
           <th>Location</th>
         </tr>
       </thead>
-      <tbody>
-        <!-- rows will be injected here by JS -->
-      </tbody>
+      <tbody></tbody>
     </table>
-  </div>
+  </section>
 
-  <!-- Script to populate the placeholder table -->
+  <!-- ✅ JavaScript to handle Local Storage -->
   <script>
-    // Example placeholder records (replace with real data later)
-    const plantationRecords = [
-      { id: 1, plant_name: "Mango",   category: "Fruit", planted_date: "2025-09-01", location: "Farm A" },
-      { id: 2, plant_name: "Rose",    category: "Flower",planted_date: "2025-09-05", location: "Garden 1" },
-      { id: 3, plant_name: "Neem",    category: "Tree",  planted_date: "2025-09-10", location: "Park" },
-      { id: 4, plant_name: "Banana",  category: "Fruit", planted_date: "2025-09-12", location: "Farm B" }
-    ];
+    // Load existing records from Local Storage (or empty array)
+    let plantationRecords = JSON.parse(localStorage.getItem("plantationRecords")) || [];
 
-    function renderRecords(records){
+    // Function to render records into the table
+    function renderRecords() {
       const tbody = document.querySelector("#plantation-records-table tbody");
-      tbody.innerHTML = ""; // clear existing rows
-      if(!records || records.length === 0){
-        const tr = document.createElement("tr");
-        tr.innerHTML = '<td colspan="5">No records found</td>';
-        tbody.appendChild(tr);
+      tbody.innerHTML = "";
+
+      if (plantationRecords.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='5'>No records found</td></tr>";
         return;
       }
 
-      records.forEach(rec => {
+      plantationRecords.forEach((rec, index) => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td data-label="ID">${rec.id}</td>
-          <td data-label="Plant Name">${rec.plant_name}</td>
-          <td data-label="Category">${rec.category}</td>
-          <td data-label="Planted Date">${rec.planted_date}</td>
-          <td data-label="Location">${rec.location}</td>
+          <td>${index + 1}</td>
+          <td>${rec.plant_name}</td>
+          <td>${rec.category}</td>
+          <td>${rec.planted_date}</td>
+          <td>${rec.location}</td>
         `;
         tbody.appendChild(tr);
       });
     }
 
-    // Run on page load
-    document.addEventListener('DOMContentLoaded', () => {
-      renderRecords(plantationRecords);
+    // Handle form submission
+    document.getElementById("plantation-form").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      // Get form values
+      const newRecord = {
+        plant_name: document.getElementById("plantName").value,
+        category: document.getElementById("category").value,
+        planted_date: document.getElementById("plantedDate").value,
+        location: document.getElementById("location").value
+      };
+
+      // Add to array
+      plantationRecords.push(newRecord);
+
+      // Save to Local Storage
+      localStorage.setItem("plantationRecords", JSON.stringify(plantationRecords));
+
+      // Re-render table
+      renderRecords();
+
+      // Reset form
+      this.reset();
     });
+
+    // Render on page load
+    document.addEventListener("DOMContentLoaded", renderRecords);
   </script>
 </body>
 </html>
